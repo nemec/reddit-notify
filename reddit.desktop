@@ -1,0 +1,9 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Reddit
+Comment=A Message Notifier for Reddit
+Icon=reddit
+Type=Application
+Exec=reddit-notify.py
+StartupNotify=False
+Terminal=false
