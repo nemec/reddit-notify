@@ -2,8 +2,7 @@
 
 import gobject
 import gtk
-from time import time
-from time import sleep
+import time
 import os
 import pynotify
 import subprocess
@@ -28,7 +27,7 @@ def get_executable_path(name):
 
 class redditnotify:
 
-  def __init__(self, username, password, bother):
+  def __init__(self, username, password, bother, quiet):
     server = indicate.indicate_server_ref_default()
     server.set_type("message.micro")
     server.set_desktop_file(desktop_file)
@@ -36,12 +35,29 @@ class redditnotify:
     server.show()
 
     self.bother = bother
+    self.quiet = quiet
     self.unread_utc = 0
 
     self.api = reddit.Reddit()
-    self.api.login(user=username, password=password)
+    retries = 1
+    while True:
+      try:
+        self.api.login(user=username, password=password)
+      except urllib2.URLError, e:
+        delay = 3 ** retries
+        if not self.quiet:
+          print "Error connecting. Sleeping for %d seconds..." % delay
+        time.sleep(delay)
+        retries += 1
+        continue
+      break
+    
+    if not self.quiet:
+      print "Initializing inbox..."
     self.inbox = self.api.get_inbox()
     
+    if not self.quiet:
+      print "Building indicator..."
     self.indicator = indicate.Indicator()
     self.indicator.set_property("subtype", "micro")
     self.indicator.set_property("sender", "Reddit Mail")
@@ -64,12 +80,13 @@ class redditnotify:
   def check_timeout(self):
     mail = self.inbox.get_new_messages()
     if len(mail) > 0:
+      if not self.quiet:
+        print "%d new messages." % len(mail)
       self.raise_alert(len(mail))
       if self.bother:
         unread = [msg for msg in mail if msg.created_utc > self.unread_utc]
         if unread:
           self.unread_utc = max(msg.created_utc for msg in unread)
-          print self.unread_utc
           if len(unread) > 1:
             self.notify("New Reddit Messages",
                         "You have %d new messages" % len(unread))
@@ -90,13 +107,15 @@ if __name__ == "__main__":
                    default=30, help="Delay in seconds between mail checks.")
   parser.add_argument('--no-notify', action="store_false", dest="bother",
                       help="Do not pop up a notification when new mail arrives")
+  parser.add_argument('-q', action="store_true", dest="quiet",
+                      help="Suppress output to stdout.")
   parser.add_argument('user', action="store")
   parser.add_argument('password', action="store")
 
 
   args = parser.parse_args()
 
-  r = redditnotify(args.user, args.password, args.bother)
+  r = redditnotify(args.user, args.password, args.bother, args.quiet)
 
   gobject.timeout_add_seconds(args.timeout, r.check_timeout)
   r.check_timeout()
