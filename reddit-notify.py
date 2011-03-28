@@ -38,7 +38,7 @@ class redditnotify:
     self.quiet = quiet
     self.unread_utc = 0
 
-    self.api = reddit.Reddit()
+    self.api = reddit.Reddit(user_agent="reddit-notify app")
     retries = 1
     while True:
       try:
