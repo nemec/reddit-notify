@@ -11,6 +11,7 @@ import argparse
 import reddit
 import indicate
 
+
 INSTALL_PATH = os.path.dirname(os.path.abspath(__file__))
 desktop_file = "%s/reddit.desktop" % INSTALL_PATH
 icon_path = "%s/reddit.png" % INSTALL_PATH
@@ -18,7 +19,7 @@ icon_path = "%s/reddit.png" % INSTALL_PATH
 class RedditAccount(object):
 
   def __init__(self, username, password):
-    self.api = reddit.Reddit(user_agent="reddit-notify app")
+    self.api = reddit.Reddit(user_agent="reddit-notify")
     self.username = username.strip()
     self.password = password.strip()
 
@@ -115,12 +116,14 @@ class redditnotify(object):
     return n
 
   def check_timeout(self):
+    if not self.quiet:
+      print "checking..."
     for account in self.accounts:
       mail = []
       try:
         mail = account.get_new_messages()
-      except:
-        pass
+      except Exception, e:
+        print "Exception occurred: %s" % e
       if len(mail) > 0:
         if not self.quiet:
           print "%d new messages for %s" % (len(mail), account.username)

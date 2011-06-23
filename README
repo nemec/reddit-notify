@@ -6,8 +6,6 @@ Hooks into Gnome's Indicator Applet and checks for new Reddit messages.
 
 Installation
 ============
-Requires the Python Reddit API located at https://github.com/nemec/reddit_api 
- (until the Inbox branch is merged into the trunk at 
- https://github.com/mellort/reddit_api).
+Requires the Python Reddit API located at https://github.com/mellort/reddit_api.
 If you want the Reddit icon installed, run:
   xdg-icon-resource install --novendor --size 48 reddit.png
