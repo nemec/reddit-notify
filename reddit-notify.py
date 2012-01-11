@@ -76,7 +76,7 @@ class RedditNotify(indicatoraccount.IndicatorAccountManager):
         for account in self.accounts:
           account.login()
       except urllib2.URLError, e:
-        delay = 3 ** retries
+        delay = min(5 * retries, 60)
         if not self.quiet:
           print "Error connecting. Sleeping for %d seconds..." % delay
         time.sleep(delay)
