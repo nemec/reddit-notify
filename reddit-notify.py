@@ -31,13 +31,10 @@ class RedditAccount(indicatoraccount.IndicatorAccount):
     self.password = password.strip()
 
   def login(self):
-    self.api.login(user=self.username, password=self.password)
-
-  def initialize_inbox(self):
-    self.inbox = self.api.get_inbox()
+    self.api.login(username=self.username, password=self.password)
 
   def get_new_messages(self):
-    return self.inbox.get_new_messages()
+    return self.api.user.get_unread(limit=None)
 
 
 def get_executable_path(name):
@@ -84,15 +81,6 @@ class RedditNotify(indicatoraccount.IndicatorAccountManager):
         continue
       break
     
-    if not self.quiet:
-      print "Initializing inbox..."
-    for account in self.accounts:
-      try:
-        account.initialize_inbox()
-      except urllib2.HTTPError:
-        # Try once more...
-        account.initialize_inbox()
-    
     for account in self.accounts:
       self.add_account(account)
 
@@ -109,7 +97,7 @@ class RedditNotify(indicatoraccount.IndicatorAccountManager):
     for account in self.accounts:
       mail = []
       try:
-        mail = account.get_new_messages()
+        mail = list(account.get_new_messages())
       except Exception, e:
         print "Exception occurred: %s" % e
       if len(mail) > 0:
