@@ -14,6 +14,6 @@ Before running, input username and password into a file
 
 ##Installation
 
-Requires the Python Reddit API located at https://github.com/mellort/reddit_api.
+Requires the Python Reddit API located at https://github.com/praw-dev/praw.
 If you want the Reddit icon installed, run:
   `xdg-icon-resource install --novendor --size 48 reddit.png`
